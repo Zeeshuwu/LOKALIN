@@ -14,11 +14,6 @@ from sklearn.neighbors import NearestNeighbors
 import numpy as np
 import joblib  # Untuk menyimpan model
 
-!pip install tensorflow
-
-pip install geocoder
-
-!pip install streamlit geocoder pandas tensorflow
 
 import streamlit as st
 import pandas as pd
