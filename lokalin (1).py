@@ -7,6 +7,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import io
 
+# Set the page title
+st.set_page_config(page_title="LOKALIN - UMKM Dashboard", layout="wide")
+
 # --- 1. Load Data UMKM ---
 @st.cache_data
 def load_data():
@@ -67,11 +70,13 @@ elif menu == "📊 Distribusi & Lapangan Kerja":
         st.bar_chart(df['USAHA'].value_counts())
 
         st.subheader("Total Pekerja per Jenis Usaha")
-        pekerja = df.groupby('USAHA')['PEKERJA'].sum().sort_values(ascending=False)
-        fig, ax = plt.subplots()
+        pekerja = df.groupby('USAHA')['PEKERJA'].sum().sort_values(ascending=True)
+        fig, ax = plt.subplots(figsize=(10, max(6, len(pekerja) * 0.3)))
         sns.barplot(x=pekerja.values, y=pekerja.index, ax=ax)
         ax.set_xlabel("Jumlah Pekerja")
         ax.set_ylabel("Jenis Usaha")
+        ax.set_title("Total Pekerja per Jenis Usaha")
+        plt.tight_layout()
         st.pyplot(fig)
     else:
         st.warning("Kolom 'USAHA', 'TK_TETAP', atau 'TK_LEPAS' tidak ditemukan.")
@@ -102,7 +107,6 @@ elif menu == "📈 Analisis Data UMKM":
 # --- Menu 4: Semua Data UMKM ---
 elif menu == "🗂️ Semua Data UMKM":
     st.header("🗂️ Semua Data UMKM di Kabupaten Cilacap")
-
     st.subheader("🔎 Filter Data")
     kec_list = df['KEC.'].dropna().unique().tolist()
     usaha_list = df['USAHA'].dropna().unique().tolist()
