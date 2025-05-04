@@ -144,11 +144,3 @@ elif menu == "🗂️ Semua Data UMKM":
     with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
         filtered_df.to_excel(writer, index=False, sheet_name="UMKM")
     st.download_button("📥 Download Excel", excel_buffer.getvalue(), "umkm_cilacap.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-'''
-
-# Save to file
-output_file = "/mnt/data/lokalin_dashboard_v2.py"
-with open(output_file, "w", encoding="utf-8") as f:
-    f.write(final_script)
-
-output_file
