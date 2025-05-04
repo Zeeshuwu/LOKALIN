@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import tensorflow as tf
-import geocoder
 import matplotlib.pyplot as plt
 import seaborn as sns
 import io
@@ -44,23 +43,21 @@ menu = st.sidebar.radio("Pilih Analisis:", [
 # --- Menu 1: UMKM Terdekat ---
 if menu == "🔍 UMKM Terdekat":
     st.header("🔍 Cari UMKM Terdekat dari Lokasi Kamu")
-    g = geocoder.ip('me')
-    if g.latlng:
-        user_lat, user_lon = g.latlng
-        st.success(f"Lokasi Kamu: Latitude {user_lat:.4f}, Longitude {user_lon:.4f}")
-        user_location = np.array([[user_lon, user_lat]], dtype=np.float32)
-        interpreter.set_tensor(input_details[0]['index'], user_location)
-        interpreter.invoke()
-        indices = interpreter.get_tensor(output_details[0]['index'])
-        st.subheader("🏠 5 UMKM Terdekat:")
-        for idx in indices[:, 0]:
-            umkm = df.iloc[idx]
-            st.markdown(f"**{umkm['UMKM']}** - {umkm['USAHA']}")
-            st.write(f"Lokasi: ({umkm['LAT']}, {umkm['LONG']})")
-            st.markdown(f"[📍 Lihat di Google Maps](https://www.google.com/maps/search/?api=1&query={umkm['LAT']},{umkm['LONG']})")
-            st.divider()
-    else:
-        st.error("Gagal mendeteksi lokasi.")
+    user_lat = st.number_input("Masukkan Latitude Anda:", value=-7.641813, step=0.0001)
+    user_lon = st.number_input("Masukkan Longitude Anda:", value=109.249208, step=0.0001)
+
+    user_location = np.array([[user_lon, user_lat]], dtype=np.float32)
+    interpreter.set_tensor(input_details[0]['index'], user_location)
+    interpreter.invoke()
+    indices = interpreter.get_tensor(output_details[0]['index'])
+
+    st.subheader("🏠 5 UMKM Terdekat:")
+    for idx in indices[:, 0]:
+        umkm = df.iloc[idx]
+        st.markdown(f"**{umkm['UMKM']}** - {umkm['USAHA']}")
+        st.write(f"Lokasi: ({umkm['LAT']}, {umkm['LONG']})")
+        st.markdown(f"[📍 Lihat di Google Maps](https://www.google.com/maps/search/?api=1&query={umkm['LAT']},{umkm['LONG']})")
+        st.divider()
 
 # --- Menu 2: Distribusi & Lapangan Kerja ---
 elif menu == "📊 Distribusi & Lapangan Kerja":
@@ -94,6 +91,22 @@ elif menu == "📈 Analisis Data UMKM":
     else:
         st.warning("Data tidak memuat informasi lokasi.")
 
+    # Analysis Section: Conclusions on thriving UMKMs and market potential
+    st.subheader("🔎 Analisis UMKM yang Berkembang di Cilacap")
+    thriving_usaha = df.groupby('USAHA').size().sort_values(ascending=False)
+    top_5_usaha = thriving_usaha.head(5)
+
+    st.write("Jenis usaha yang paling banyak berkembang di Cilacap berdasarkan jumlah UMKM:")
+    st.write(top_5_usaha)
+
+    st.subheader("📊 Potensi Pasar dan Peluang Bisnis")
+    st.write("""
+    Berdasarkan distribusi UMKM di Cilacap, ada beberapa jenis usaha yang banyak berkembang, seperti "Bahan Pokok" dan "Tempe". 
+    Jenis usaha ini menunjukkan bahwa ada pasar yang berkembang pesat untuk kebutuhan pokok dan makanan ringan di Cilacap. 
+    Selain itu, pasar seperti "Warung Rokok" dan "Perajin Tahu" juga cukup berkembang, menunjukkan peluang untuk bisnis berbasis industri makanan ringan, 
+    serta usaha mikro di sektor lokal.
+    """)
+    
     st.subheader("Filter Berdasarkan Jenis Usaha")
     usaha_list = df['USAHA'].dropna().unique().tolist()
     selected_usaha = st.multiselect("Pilih Jenis Usaha:", usaha_list)
@@ -131,3 +144,11 @@ elif menu == "🗂️ Semua Data UMKM":
     with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
         filtered_df.to_excel(writer, index=False, sheet_name="UMKM")
     st.download_button("📥 Download Excel", excel_buffer.getvalue(), "umkm_cilacap.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+'''
+
+# Save to file
+output_file = "/mnt/data/lokalin_dashboard_v2.py"
+with open(output_file, "w", encoding="utf-8") as f:
+    f.write(final_script)
+
+output_file
